@@ -7,12 +7,21 @@ const initialState = {
   status: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
   count: 0,
+  posts: [],
 };
 
 export const fetchPosts = createAsyncThunk("post/fetchPostList", async () => {
   const response = await axios.get(POSTS_URL);
   return response.data;
 });
+
+export const addNewPost = createAsyncThunk(
+  "posts/addNewPost",
+  async (initialPost) => {
+    const response = await axios.post(POSTS_URL, initialPost);
+    return response.data;
+  }
+);
 
 const postSlice = createSlice({
   name: "posts",
@@ -31,6 +40,10 @@ const postSlice = createSlice({
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      .addCase(addNewPost.fulfilled, (state, action) => {
+        console.log("action new post", action.payload);
+        state.posts = [...state.posts, action.payload];
       });
   },
 });
